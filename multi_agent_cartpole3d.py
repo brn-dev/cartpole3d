@@ -163,12 +163,12 @@ class MultiAgentCartPole3D(gym.Env):
         base = cart.worldbody.add('body')
         base.add('geom', type='box', size=[self.cart_size, self.cart_size, self.cart_size / 5])
 
-        appendage = base.add('body', pos=[0, 0, self.cart_size / 5])
-        appendage.add('geom', type='sphere', size=[self.cart_size / 2], pos=[0, 0, 0])
-        appendage.add('geom', type='cylinder', fromto=[0, 0, 0, 0, 0, self.cart_size * 2], size=[self.cart_size / 3])
+        pole = base.add('body', pos=[0, 0, self.cart_size / 5])
+        pole.add('geom', type='sphere', size=[self.cart_size / 2], pos=[0, 0, 0])
+        pole.add('geom', type='cylinder', fromto=[0, 0, 0, 0, 0, self.cart_size * 2], size=[self.cart_size / 3])
 
-        appendage.add('joint', type='hinge', axis=[0, 1, 0], range=[-np.pi / 2, np.pi / 2])
-        appendage.add('joint', type='hinge', axis=[-1, 0, 0], range=[-np.pi / 2, np.pi / 2])
+        pole.add('joint', type='hinge', axis=[0, 1, 0], range=[-np.pi / 2, np.pi / 2])
+        pole.add('joint', type='hinge', axis=[-1, 0, 0], range=[-np.pi / 2, np.pi / 2])
 
         for i in range(2):
             slide_joint = base.add('joint', type='slide', axis=np.eye(3)[i], name=f'slide_joint_{i}')

@@ -153,24 +153,20 @@ class CartPole3D(gym.Env):
         base = cart.worldbody.add('body')
         base.add('geom', type='box', size=[self.cart_size, self.cart_size, self.cart_size / 5])
 
-        appendage = base.add('body', pos=[0, 0, self.cart_size / 5])
-        appendage.add('geom', type='sphere', size=[self.cart_size / 2], pos=[0, 0, 0])
-        appendage.add('geom', type='cylinder', fromto=[0, 0, 0, 0, 0, self.cart_size * 2], size=[self.cart_size / 3])
-        # appendage.add('geom', type='cylinder', fromto=[
-        #   -self.cart_size, 0, self.cart_size * 2, self.cart_size, 0, self.cart_size * 2], size=[self.cart_size / 10])
-        # appendage.add('geom', type='cylinder', fromto=[
-        #   0, -self.cart_size, self.cart_size * 2, 0, self.cart_size, self.cart_size * 2], size=[self.cart_size / 10])
-
-        appendage.add('joint', type='hinge', axis=[0, 1, 0], range=[-np.pi / 2, np.pi / 2])
-        if self.nr_movement_dimensions >= 2:
-            appendage.add('joint', type='hinge', axis=[1, 0, 0], range=[-np.pi / 2, np.pi / 2])
-
         for i in range(self.nr_movement_dimensions):
             slide_joint = base.add('joint', type='slide', axis=np.eye(3)[i], name=f's{i}')
             cart.actuator.add('motor', joint=slide_joint)
 
+        pole = base.add('body', pos=[0, 0, self.cart_size / 5])
+        pole.add('geom', type='sphere', size=[self.cart_size / 2], pos=[0, 0, 0])
+        pole.add('geom', type='cylinder', fromto=[0, 0, 0, 0, 0, self.cart_size * 2], size=[self.cart_size / 3])
+
+        pole.add('joint', type='hinge', axis=[0, 1, 0], range=[-np.pi / 2, np.pi / 2])
+        if self.nr_movement_dimensions >= 2:
+            pole.add('joint', type='hinge', axis=[1, 0, 0], range=[-np.pi / 2, np.pi / 2])
+
         spawn_site = env.worldbody.add('site', pos=[0, 0, self.cart_size])
-        cart = spawn_site.attach(cart)
+        spawn_site.attach(cart)
 
         env.worldbody.add('camera', mode='targetbody', target=base, pos=[0, 4, 2.5])
 
