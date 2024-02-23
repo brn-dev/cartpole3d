@@ -4,7 +4,7 @@ import torch
 from torch import nn
 
 
-class SinusoidalPositionalEmbedding(nn.Module):
+class SinusoidalPositionalEncoding(nn.Module):
 
     pos_embedding: torch.Tensor
 

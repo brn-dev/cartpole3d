@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.init as nn_init
 import torch.nn.functional as F
 
-from ..self_normalizing_fnn import SelfNormalizingFNN
+from src.networks.self_normalizing_fnn import SelfNormalizingFNN
 
 
 class StateModelFnnPolicy(nn.Module):

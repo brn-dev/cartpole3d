@@ -187,7 +187,7 @@ class MultiAgentCartPole3D(gym.Env):
                                   height=300, rgb1=[.2, .3, .4], rgb2=[.3, .4, .5])
         grid = env.asset.add('material', name='grid', texture=chequered,
                              texrepeat=[5, 5], reflectance=.2)
-        env.worldbody.add('geom', type='plane', size=[2, 2, .1], material=grid)
+        env.worldbody.add('geom', type='plane', pos=[0, 0, -self.cart_size / 4], size=[2, 2, .1], material=grid)
 
         for x in [-3, 3]:
             env.worldbody.add('light', pos=[x, 0, 10], dir=[-x/5, 0, -1])

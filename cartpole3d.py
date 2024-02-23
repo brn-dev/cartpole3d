@@ -5,7 +5,6 @@ import PIL.Image
 import numpy as np
 from dm_control import mjcf
 
-
 StepRewardFunction = Callable[[float, np.ndarray, np.ndarray, np.ndarray], float]
 RewardFunction = Callable[[float, np.ndarray, np.ndarray], float]
 
@@ -28,6 +27,7 @@ class CartPole3D(gym.Env):
             render_mode='human',
             render_width=640,
             render_height=480,
+            cam_id=0,
     ):
         self.nr_movement_dimensions = nr_movement_dimensions
         self.nr_topple_dimensions = min(nr_movement_dimensions, 2)
@@ -49,6 +49,8 @@ class CartPole3D(gym.Env):
         self.render_mode = render_mode
         self.render_width = render_width
         self.render_height = render_height
+
+        self.cam_id = cam_id
 
         self.physics = self.create_physics()
 
@@ -95,10 +97,10 @@ class CartPole3D(gym.Env):
     def render(self) -> np.ndarray | None:
         if self.render_mode == 'human':
             return PIL.Image.fromarray(
-                self.physics.render(width=self.render_width, height=self.render_height, camera_id=-1)
+                self.physics.render(width=self.render_width, height=self.render_height, camera_id=self.cam_id)
             )
         if self.render_mode == 'numpy':
-            return self.physics.render(width=self.render_width, height=self.render_height, camera_id=-1)
+            return self.physics.render(width=self.render_width, height=self.render_height, camera_id=self.cam_id)
         if self.render_mode is None:
             return None
         raise ValueError(f'Unknown render mode "{self.render_mode}"')
@@ -138,36 +140,43 @@ class CartPole3D(gym.Env):
         getattr(env.visual, 'global').offwidth = self.render_width
         getattr(env.visual, 'global').offheight = self.render_height
 
-        chequered = env.asset.add('texture', type='2d', builtin='checker', width=300,
-                                  height=300, rgb1=[.2, .3, .4], rgb2=[.3, .4, .5])
+        chequered = env.asset.add('texture', type='2d', builtin='checker', width=100,
+                                  height=100, rgb1=[.2, .3, .4], rgb2=[.3, .4, .5])
         grid = env.asset.add('material', name='grid', texture=chequered,
                              texrepeat=[5, 5], reflectance=.2)
-        env.worldbody.add('geom', type='plane', size=[2, 2, .1], material=grid)
+        red_material = env.asset.add('material', name='red_material', rgba=[1, 0, 0, 1])
+        orange_material = env.asset.add('material', name='orange_material', rgba=[1, 0.75, 0, 1])
+        pink_material = env.asset.add('material', name='pink_material', rgba=[1, 0, 0.75, 1])
+
+        env.worldbody.add('geom', type='plane', pos=[0, 0, -self.cart_size / 4],
+                          size=[2, 2, .1], material=grid, contype=0, conaffinity=0)
+
+        env.worldbody.add('geom', type='sphere', size=[0.01], material=red_material, contype=0, conaffinity=0)
+        env.worldbody.add('geom', type='sphere', pos=[1, 0, 0], size=[0.01],
+                          material=orange_material, contype=0, conaffinity=0)
+        env.worldbody.add('geom', type='sphere', pos=[0, 1, 0], size=[0.01],
+                          material=pink_material, contype=0, conaffinity=0)
 
         for x in [-2, 2]:
             env.worldbody.add('light', pos=[x, -1, 3], dir=[-x, 1, -2])
+        env.compiler.angle = 'radian'
 
-        cart = mjcf.RootElement()
-        cart.compiler.angle = 'radian'
-
-        base = cart.worldbody.add('body')
+        base = env.worldbody.add('body', name='base')
         base.add('geom', type='box', size=[self.cart_size, self.cart_size, self.cart_size / 5])
 
         for i in range(self.nr_movement_dimensions):
             slide_joint = base.add('joint', type='slide', axis=np.eye(3)[i], name=f's{i}')
-            cart.actuator.add('motor', joint=slide_joint)
+            env.actuator.add('motor', joint=slide_joint)
 
-        pole = base.add('body', pos=[0, 0, self.cart_size / 5])
+        pole = base.add('body', pos=[0, 0, self.cart_size / 5], name='pole')
         pole.add('geom', type='sphere', size=[self.cart_size / 2], pos=[0, 0, 0])
         pole.add('geom', type='cylinder', fromto=[0, 0, 0, 0, 0, self.cart_size * 2], size=[self.cart_size / 3])
+        pole.add('body', pos=[0, 0, self.cart_size * 2], name='tip')
 
         pole.add('joint', type='hinge', axis=[0, 1, 0], range=[-np.pi / 2, np.pi / 2])
         if self.nr_movement_dimensions >= 2:
             pole.add('joint', type='hinge', axis=[1, 0, 0], range=[-np.pi / 2, np.pi / 2])
 
-        spawn_site = env.worldbody.add('site', pos=[0, 0, self.cart_size])
-        spawn_site.attach(cart)
-
-        env.worldbody.add('camera', mode='targetbody', target=base, pos=[0, 4, 2.5])
+        env.worldbody.add('camera', mode='targetbody', target=base, pos=np.array([0, 4, 2.5]) * 0.4)
 
         return mjcf.Physics.from_mjcf_model(env)

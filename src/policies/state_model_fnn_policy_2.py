@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from ..self_normalizing_fnn import SelfNormalizingFNN
+from src.networks.self_normalizing_fnn import SelfNormalizingFNN
 
 
 class StateModelFnnPolicy(nn.Module):
@@ -23,7 +23,7 @@ class StateModelFnnPolicy(nn.Module):
             hidden_sizes=hidden_sizes,
             output_size=state_size + action_size
         )
-        nn.init.xavier_normal_(self.fnn.snn[-1].weight)  # apply xavier initialization for tanh
+        nn.init.xavier_normal_(self.fnn.fnn[-1].weight)  # apply xavier initialization for tanh
 
 
     def forward(self, in_state: torch.Tensor):

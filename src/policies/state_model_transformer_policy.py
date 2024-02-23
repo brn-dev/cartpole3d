@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import torch.nn.init as nn_init
 
-from cartpole.modules.sinusoidal_positional_embedding import SinusoidalPositionalEmbedding
+from src.networks.sinusoidal_positional_encoding import SinusoidalPositionalEncoding
 
 
 class StateModelTransformerPolicy(nn.Module):
@@ -21,7 +21,7 @@ class StateModelTransformerPolicy(nn.Module):
 
         self.in_linear = nn.Linear(in_dim, d_model)
 
-        self.pos_embedding = SinusoidalPositionalEmbedding(d_model, max_len)
+        self.pos_embedding = SinusoidalPositionalEncoding(d_model, max_len)
 
         self.transformer = nn.TransformerEncoder(
             nn.TransformerEncoderLayer(

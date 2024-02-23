@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from ..self_normalizing_fnn import SelfNormalizingFNN
+from src.networks.self_normalizing_fnn import SelfNormalizingFNN
 
 class CrossAgentAttentionWithStatePredictionPolicy(nn.Module):
 
