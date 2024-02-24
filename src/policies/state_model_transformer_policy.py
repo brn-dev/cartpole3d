@@ -42,12 +42,12 @@ class StateModelTransformerPolicy(nn.Module):
         mask = torch.triu(torch.ones(sequence.shape[0], sequence.shape[0]), diagonal=1)
         mask = mask.masked_fill(mask == 1, float('-inf'))
 
-        embedded_sequence = self.in_linear.forward(sequence)
+        embedded_sequence = self.in_linear(sequence)
 
-        embedded_sequence += self.pos_embedding.forward(torch.arange(len(embedded_sequence)))
+        embedded_sequence += self.pos_embedding(torch.arange(len(embedded_sequence)))
 
-        pred = self.transformer.forward(embedded_sequence, mask=mask)
-        pred = self.out_linear.forward(pred)
+        pred = self.transformer(embedded_sequence, mask=mask)
+        pred = self.out_linear(pred)
 
         return pred
 

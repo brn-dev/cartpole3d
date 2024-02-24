@@ -38,12 +38,12 @@ class StateModelFnnPolicy(nn.Module):
         )
 
     def forward(self, in_state: torch.Tensor):
-        in_state_embedded = self.in_state_embedding.forward(in_state)
+        in_state_embedded = self.in_state_embedding(in_state)
 
-        action_pred = self.action_regression.forward(in_state_embedded)
+        action_pred = self.action_regression(in_state_embedded)
         action_pred = F.tanh(action_pred)
 
-        state_pred = self.state_regression.forward(torch.cat([in_state_embedded, action_pred], dim=-1))
+        state_pred = self.state_regression(torch.cat([in_state_embedded, action_pred], dim=-1))
 
         return action_pred, state_pred
 

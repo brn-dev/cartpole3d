@@ -27,7 +27,7 @@ class StateModelFnnPolicy(nn.Module):
 
 
     def forward(self, in_state: torch.Tensor):
-        out = self.fnn.forward(in_state)
+        out = self.fnn(in_state)
 
         action_pred = out[-self.action_size:]
         action_pred = F.tanh(action_pred)

@@ -51,12 +51,12 @@ class CrossAgentAttentionWithStatePredictionPolicy(nn.Module):
     def forward(self, agent_states):
         # nr_agents, state_size = agent_states.shape
 
-        agent_states = self.state_embedding.forward(agent_states)
-        agent_states = self.cross_agent_attention.forward(agent_states)
+        agent_states = self.state_embedding(agent_states)
+        agent_states = self.cross_agent_attention(agent_states)
 
-        action_pred = self.action_regression.forward(agent_states)
+        action_pred = self.action_regression(agent_states)
         action_pred = nn.functional.tanh(action_pred)
 
-        state_pred = self.next_state_regression.forward(torch.cat([agent_states, action_pred], dim=-1))
+        state_pred = self.next_state_regression(torch.cat([agent_states, action_pred], dim=-1))
 
         return action_pred, state_pred
