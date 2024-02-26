@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from src.networks.self_normalizing_fnn import SelfNormalizingFNN
+from src.networks.fnn import FNN
 
 
 class StateModelFnnPolicy(nn.Module):
@@ -18,7 +18,7 @@ class StateModelFnnPolicy(nn.Module):
         self.action_size = action_size
         self.state_size = state_size
 
-        self.fnn = SelfNormalizingFNN(
+        self.fnn = FNN.self_normalizing(
             input_size=state_size,
             hidden_sizes=hidden_sizes,
             output_size=state_size + action_size
