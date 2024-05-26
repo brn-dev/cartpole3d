@@ -78,8 +78,8 @@ class MultiAgentCartPole3D(gym.Env):
         reward = self.step_reward_function(time, action, observations, previous_observations)
         terminated, truncated, info = False, False, dict()
 
-        slide_pos = observations[:, 0, :2]
-        hinge_pos = observations[:, 0, 2:]
+        slide_pos = observations[:, :2]
+        hinge_pos = observations[:, 2:4]
 
         if np.any(np.abs(slide_pos) > self.slide_range):
             reward = self.out_ouf_range_reward_function(time, action, observations)
@@ -145,7 +145,7 @@ class MultiAgentCartPole3D(gym.Env):
         return np.concatenate([
             self.physics.data.qpos.reshape((self.nr_carts, -1)),
             self.physics.data.qvel.reshape((self.nr_carts, -1))
-        ], axis=-1).reshape((self.nr_carts, 2, -1))
+        ], axis=-1)
 
     def get_time(self):
         return self.physics.time()
